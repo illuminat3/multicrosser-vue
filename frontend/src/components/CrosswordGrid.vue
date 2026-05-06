@@ -66,9 +66,15 @@ const cellNumbers = computed(() => {
 });
 
 const cellSeparators = computed(() => {
-  const map = new Map<string, { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType }>();
+  const map = new Map<
+    string,
+    { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType }
+  >();
 
-  function mark(key: string, patch: { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType }) {
+  function mark(
+    key: string,
+    patch: { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType },
+  ) {
     map.set(key, { ...map.get(key), ...patch });
   }
 
@@ -98,13 +104,12 @@ const cellSeparators = computed(() => {
   return map;
 });
 
-// Which directions are playable at each cell
 const cellDirections = computed(() => {
-  const map = new Map<string, Set<'across' | 'down'>>();
+  const map = new Map<string, Set<"across" | "down">>();
   props.crossword.entries.forEach((e) => {
     for (let i = 0; i < e.length; i++) {
-      const x = e.direction === 'across' ? e.position.x + i : e.position.x;
-      const y = e.direction === 'down' ? e.position.y + i : e.position.y;
+      const x = e.direction === "across" ? e.position.x + i : e.position.x;
+      const y = e.direction === "down" ? e.position.y + i : e.position.y;
       const key = `${x},${y}`;
       if (!map.has(key)) map.set(key, new Set());
       map.get(key)!.add(e.direction);
@@ -154,29 +159,33 @@ function isHighlighted(x: number, y: number): boolean {
 function handleCellClick(x: number, y: number) {
   if (!whiteCells.value.has(`${x},${y}`)) return;
 
-  const dirs = cellDirections.value.get(`${x},${y}`) ?? new Set<'across' | 'down'>();
-  const alreadyActive = gameStore.activeCell?.x === x && gameStore.activeCell?.y === y;
+  const dirs =
+    cellDirections.value.get(`${x},${y}`) ?? new Set<"across" | "down">();
+  const alreadyActive =
+    gameStore.activeCell?.x === x && gameStore.activeCell?.y === y;
 
   if (alreadyActive) {
-    const other = gameStore.activeDirection === 'across' ? 'down' : 'across';
+    const other = gameStore.activeDirection === "across" ? "down" : "across";
     if (dirs.has(other)) gameStore.activeDirection = other;
     return;
   }
 
-  // Check against the OLD clue before moving active cell
   const prevClue = gameStore.activeClue;
   const keepDirection = (() => {
     if (!prevClue || !dirs.has(prevClue.direction)) return false;
-    return prevClue.direction === 'across'
-      ? prevClue.position.y === y && x >= prevClue.position.x && x < prevClue.position.x + prevClue.length
-      : prevClue.position.x === x && y >= prevClue.position.y && y < prevClue.position.y + prevClue.length;
+    return prevClue.direction === "across"
+      ? prevClue.position.y === y &&
+          x >= prevClue.position.x &&
+          x < prevClue.position.x + prevClue.length
+      : prevClue.position.x === x &&
+          y >= prevClue.position.y &&
+          y < prevClue.position.y + prevClue.length;
   })();
 
   gameStore.activeCell = { x, y };
 
   if (!keepDirection) {
-    // Not in current clue — prefer across, fall back to down
-    gameStore.activeDirection = dirs.has('across') ? 'across' : 'down';
+    gameStore.activeDirection = dirs.has("across") ? "across" : "down";
   }
 }
 
@@ -216,9 +225,25 @@ function handleKeydown(x: number, y: number, e: KeyboardEvent) {
 }
 
 function moveCursor(x: number, y: number, dx: number, dy: number) {
-  const next = { x: x + dx, y: y + dy };
-  if (whiteCells.value.has(`${next.x},${next.y}`)) {
-    gameStore.activeCell = next;
+  const { rows, cols } = props.crossword.dimensions;
+  let nx = x;
+  let ny = y;
+
+  for (let i = 0; i < rows * cols; i++) {
+    nx += dx;
+    ny += dy;
+
+    if (nx < 0) nx = cols - 1;
+    else if (nx >= cols) nx = 0;
+    if (ny < 0) ny = rows - 1;
+    else if (ny >= rows) ny = 0;
+
+    if (whiteCells.value.has(`${nx},${ny}`)) {
+      gameStore.activeCell = { x: nx, y: ny };
+      return;
+    }
+
+    if (nx === x && ny === y) return;
   }
 }
 
