@@ -23,19 +23,6 @@
       <div class="game__body">
         <div class="game__grid-wrap">
           <CrosswordGrid :crossword="gameStore.crossword" />
-          <div class="game__active-clue">
-            <template v-if="gameStore.activeClue">
-              <span class="game__active-clue-num">
-                {{ gameStore.activeClue.humanNumber }}
-                {{ gameStore.activeClue.direction === "across" ? "A" : "D" }}
-              </span>
-              {{ gameStore.activeClue.clue }}
-              <span class="muted"
-                >({{ gameStore.activeClue.format ?? gameStore.activeClue.length }})</span
-              >
-            </template>
-            <span v-else class="muted">Select a cell to see the clue</span>
-          </div>
         </div>
         <div class="game__clues">
           <ClueList
@@ -166,28 +153,6 @@ onUnmounted(() => gameStore.cleanup());
 
   &__expires {
     color: $color-text-muted;
-  }
-
-  &__active-clue {
-    background: $color-surface;
-    border: 1px solid $color-border;
-    border-radius: $radius-sm;
-    padding: 0.6rem 1rem;
-    margin-top: 0.75rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    min-height: 2.6rem;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  &__active-clue-num {
-    font-weight: 700;
-    color: $color-primary;
-    margin-right: 0.4rem;
-    flex-shrink: 0;
   }
 
   &__body {
