@@ -23,8 +23,7 @@
       autocomplete="off"
       autocorrect="off"
       spellcheck="false"
-      @input="onInput"
-      @keydown="$emit('keydown', $event)"
+      @keydown="onKeydown"
     />
     <span
       v-if="!isBlack && sepRight === 'dash'"
@@ -73,14 +72,13 @@ watch(
   },
 );
 
-function onInput(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const letter = input.value
-    .replace(/[^a-zA-Z]/g, "")
-    .slice(-1)
-    .toUpperCase();
-  input.value = letter;
-  emit("input", letter);
+function onKeydown(e: KeyboardEvent) {
+  if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+    e.preventDefault();
+    emit("input", e.key.toUpperCase());
+    return;
+  }
+  emit("keydown", e);
 }
 </script>
 

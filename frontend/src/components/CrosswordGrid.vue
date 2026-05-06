@@ -190,8 +190,14 @@ function handleCellClick(x: number, y: number) {
 }
 
 function handleInput(x: number, y: number, value: string) {
-  gameStore.setCell(x, y, value);
-  if (value) advanceCursor(x, y);
+  if (!value) return;
+  const current = gameStore.cells[`${x},${y}`] ?? "";
+  if (current === "") {
+    gameStore.setCell(x, y, value);
+    advanceCursor(x, y);
+  } else if (value === current) {
+    advanceCursor(x, y);
+  }
 }
 
 function handleKeydown(x: number, y: number, e: KeyboardEvent) {
