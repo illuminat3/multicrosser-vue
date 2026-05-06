@@ -53,8 +53,8 @@ const props = defineProps<{
   isHighlighted: boolean;
   sepRight?: "dash" | "comma";
   sepBottom?: "dash" | "comma";
-  sepLeft?: "comma";
-  sepTop?: "comma";
+  sepLeft?: "dash" | "comma";
+  sepTop?: "dash" | "comma";
 }>();
 
 const emit = defineEmits<{
