@@ -1,12 +1,15 @@
-@use 'variables' as *;
+@use "variables" as *;
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   font-family: $font-sans;
   background: $color-bg;
@@ -23,7 +26,9 @@ a {
   color: $color-primary;
   text-decoration: none;
 
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 button {
@@ -45,14 +50,18 @@ button {
   &--primary {
     background: $color-primary;
     color: #fff;
-    &:hover { background: $color-primary-hover; }
+    &:hover {
+      background: $color-primary-hover;
+    }
   }
 
   &--ghost {
     background: transparent;
     border: 1px solid $color-border;
     color: $color-text;
-    &:hover { background: $color-surface; }
+    &:hover {
+      background: $color-surface;
+    }
   }
 }
 

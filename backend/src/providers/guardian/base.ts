@@ -54,8 +54,7 @@ export abstract class GuardianBaseProvider implements CrosswordProvider {
   }
 
   protected parseResponse(raw: Record<string, unknown>): CrosswordData {
-    const data =
-      (raw as { crossword?: Record<string, unknown> }).crossword ?? raw;
+    const data = (raw as { crossword?: Record<string, unknown> }).crossword ?? raw;
     return {
       id: `${this.providerId}:${data["number"] as number}`,
       number: data["number"] as number,

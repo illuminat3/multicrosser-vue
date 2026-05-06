@@ -1,15 +1,15 @@
-import { DatabaseSync } from 'node:sqlite';
-import path from 'path';
-import fs from 'fs';
+import { DatabaseSync } from "node:sqlite";
+import path from "path";
+import fs from "fs";
 
-const DATA_DIR = process.env.DATA_DIR ?? path.join(__dirname, '../../data');
+const DATA_DIR = process.env.DATA_DIR ?? path.join(__dirname, "../../data");
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
-export const crosswordsDb = new DatabaseSync(path.join(DATA_DIR, 'crosswords.db'));
-export const gamesDb = new DatabaseSync(path.join(DATA_DIR, 'games.db'));
+export const crosswordsDb = new DatabaseSync(path.join(DATA_DIR, "crosswords.db"));
+export const gamesDb = new DatabaseSync(path.join(DATA_DIR, "games.db"));
 
-crosswordsDb.exec('PRAGMA journal_mode = WAL');
-gamesDb.exec('PRAGMA journal_mode = WAL');
+crosswordsDb.exec("PRAGMA journal_mode = WAL");
+gamesDb.exec("PRAGMA journal_mode = WAL");
 
 crosswordsDb.exec(`
   CREATE TABLE IF NOT EXISTS crosswords (

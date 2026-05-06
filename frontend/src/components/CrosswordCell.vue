@@ -107,10 +107,18 @@ function onKeydown(e: KeyboardEvent) {
     background: $color-cell-active;
   }
 
-  &--sep-right-comma  { border-right-color: $color-cell-text; }
-  &--sep-bottom-comma { border-bottom-color: $color-cell-text; }
-  &--sep-left-comma   { border-left-color: $color-cell-text; }
-  &--sep-top-comma    { border-top-color: $color-cell-text; }
+  &--sep-right-comma {
+    border-right-color: $color-cell-text;
+  }
+  &--sep-bottom-comma {
+    border-bottom-color: $color-cell-text;
+  }
+  &--sep-left-comma {
+    border-left-color: $color-cell-text;
+  }
+  &--sep-top-comma {
+    border-top-color: $color-cell-text;
+  }
 
   &__number {
     position: absolute;

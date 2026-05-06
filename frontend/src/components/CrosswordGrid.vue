@@ -143,26 +143,16 @@ function isHighlighted(x: number, y: number): boolean {
   const clue = gameStore.activeClue;
   if (!clue) return false;
   if (clue.direction === "across") {
-    return (
-      clue.position.y === y &&
-      x >= clue.position.x &&
-      x < clue.position.x + clue.length
-    );
+    return clue.position.y === y && x >= clue.position.x && x < clue.position.x + clue.length;
   }
-  return (
-    clue.position.x === x &&
-    y >= clue.position.y &&
-    y < clue.position.y + clue.length
-  );
+  return clue.position.x === x && y >= clue.position.y && y < clue.position.y + clue.length;
 }
 
 function handleCellClick(x: number, y: number) {
   if (!whiteCells.value.has(`${x},${y}`)) return;
 
-  const dirs =
-    cellDirections.value.get(`${x},${y}`) ?? new Set<"across" | "down">();
-  const alreadyActive =
-    gameStore.activeCell?.x === x && gameStore.activeCell?.y === y;
+  const dirs = cellDirections.value.get(`${x},${y}`) ?? new Set<"across" | "down">();
+  const alreadyActive = gameStore.activeCell?.x === x && gameStore.activeCell?.y === y;
 
   if (alreadyActive) {
     const other = gameStore.activeDirection === "across" ? "down" : "across";

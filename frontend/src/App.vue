@@ -10,7 +10,7 @@
 </template>
 
 <style lang="scss">
-@use '@/styles/variables' as *;
+@use "@/styles/variables" as *;
 
 .app-header {
   background: $color-surface;

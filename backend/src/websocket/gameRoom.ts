@@ -49,9 +49,7 @@ export function attachWebSocket(wss: WebSocketServer) {
     const game = getGame(guid);
 
     if (!game || game.crosswordId !== crosswordId) {
-      ws.send(
-        JSON.stringify({ type: "error", message: "Game not found or expired" }),
-      );
+      ws.send(JSON.stringify({ type: "error", message: "Game not found or expired" }));
       ws.close();
       return;
     }

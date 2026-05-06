@@ -36,22 +36,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { CrosswordEntry } from '@/types';
+import { computed } from "vue";
+import type { CrosswordEntry } from "@/types";
 
 const props = defineProps<{
   entries: CrosswordEntry[];
   activeClue: CrosswordEntry | null;
 }>();
 
-defineEmits<{ 'clue-click': [entry: CrosswordEntry] }>();
+defineEmits<{ "clue-click": [entry: CrosswordEntry] }>();
 
-const across = computed(() => props.entries.filter((e) => e.direction === 'across'));
-const down = computed(() => props.entries.filter((e) => e.direction === 'down'));
+const across = computed(() => props.entries.filter((e) => e.direction === "across"));
+const down = computed(() => props.entries.filter((e) => e.direction === "down"));
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@use "@/styles/variables" as *;
 
 .clue-list {
   display: grid;
@@ -88,7 +88,9 @@ const down = computed(() => props.entries.filter((e) => e.direction === 'down'))
     line-height: 1.4;
     transition: background 0.1s;
 
-    &:hover { background: $color-surface; }
+    &:hover {
+      background: $color-surface;
+    }
 
     &--active {
       background: rgba($color-primary, 0.2);
@@ -103,7 +105,9 @@ const down = computed(() => props.entries.filter((e) => e.direction === 'down'))
     flex-shrink: 0;
   }
 
-  &__text { flex: 1; }
+  &__text {
+    flex: 1;
+  }
 
   &__len {
     color: $color-text-muted;

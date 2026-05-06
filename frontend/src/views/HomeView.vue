@@ -9,11 +9,7 @@
       <section v-for="host in hosts" :key="host.hostId" class="host">
         <h2 class="host__name">{{ host.displayName }}</h2>
         <div class="host__providers">
-          <div
-            v-for="provider in host.providers"
-            :key="provider.providerId"
-            class="provider-card"
-          >
+          <div v-for="provider in host.providers" :key="provider.providerId" class="provider-card">
             <div class="provider-card__type">{{ formatType(provider.crosswordType) }}</div>
             <div class="provider-card__meta">
               <span v-if="crosswordData[provider.providerId]">
@@ -38,17 +34,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import type { CrosswordHostMeta, CrosswordData } from '@/types';
-import { fetchHosts, fetchTodaysCrossword, createGame } from '@/services/api';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import type { CrosswordHostMeta, CrosswordData } from "@/types";
+import { fetchHosts, fetchTodaysCrossword, createGame } from "@/services/api";
 
 const router = useRouter();
 const hosts = ref<CrosswordHostMeta[]>([]);
 const crosswordData = ref<Record<string, CrosswordData | null>>({});
 const loadingProviders = ref(new Set<string>());
 const loading = ref(true);
-const error = ref('');
+const error = ref("");
 
 function formatType(type: string): string {
   return type.charAt(0).toUpperCase() + type.slice(1);
@@ -79,7 +75,7 @@ onMounted(async () => {
     const providers = hosts.value.flatMap((h) => h.providers);
     await Promise.all(providers.map((p) => loadProvider(p.providerId)));
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to load';
+    error.value = e instanceof Error ? e.message : "Failed to load";
   } finally {
     loading.value = false;
   }
@@ -87,7 +83,7 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@use "@/styles/variables" as *;
 
 .home {
   &__title {
@@ -98,7 +94,9 @@ onMounted(async () => {
 
   &__status {
     color: $color-text-muted;
-    &--error { color: $color-primary; }
+    &--error {
+      color: $color-primary;
+    }
   }
 
   &__hosts {
@@ -157,5 +155,7 @@ onMounted(async () => {
   }
 }
 
-.muted { color: $color-text-muted; }
+.muted {
+  color: $color-text-muted;
+}
 </style>

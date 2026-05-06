@@ -13,8 +13,11 @@ $color-cell-active: #ffd700;
 $color-cell-highlight: #add8e6;
 $color-cell-black: #1a1a2e;
 
-$font-mono: 'Courier New', Courier, monospace;
-$font-sans: system-ui, -apple-system, sans-serif;
+$font-mono: "Courier New", Courier, monospace;
+$font-sans:
+  system-ui,
+  -apple-system,
+  sans-serif;
 
 $radius-sm: 4px;
 $radius-md: 8px;

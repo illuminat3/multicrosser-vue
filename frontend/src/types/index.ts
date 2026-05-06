@@ -8,7 +8,7 @@ export interface CrosswordEntry {
   number: number;
   humanNumber: string;
   clue: string;
-  direction: 'across' | 'down';
+  direction: "across" | "down";
   length: number;
   position: CrosswordPosition;
   solution?: string;

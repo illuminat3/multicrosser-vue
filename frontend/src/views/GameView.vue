@@ -3,9 +3,7 @@
     <div v-if="loading" class="game__status">Loading game…</div>
     <div v-else-if="error" class="game__status game__status--error">
       {{ error }}
-      <router-link to="/" class="btn btn--ghost" style="margin-top: 1rem"
-        >Back to home</router-link
-      >
+      <router-link to="/" class="btn btn--ghost" style="margin-top: 1rem">Back to home</router-link>
     </div>
 
     <template v-else-if="gameStore.crossword">
@@ -33,9 +31,7 @@
               </span>
               {{ gameStore.activeClue.clue }}
               <span class="muted"
-                >({{
-                  gameStore.activeClue.format ?? gameStore.activeClue.length
-                }})</span
+                >({{ gameStore.activeClue.format ?? gameStore.activeClue.length }})</span
               >
             </template>
             <span v-else class="muted">Select a cell to see the clue</span>
@@ -75,17 +71,13 @@ async function initGame() {
   error.value = "";
 
   try {
-    const game = await fetchGame(props.crosswordId, props.guid).catch(
-      (e: Error) => {
-        throw Object.assign(e, { expired: true });
-      },
-    );
+    const game = await fetchGame(props.crosswordId, props.guid).catch((e: Error) => {
+      throw Object.assign(e, { expired: true });
+    });
 
     expiresAt.value = new Date(game.expiresAt).toLocaleString();
 
-    const cwRes = await fetch(
-      `/api/crosswords/by-id/${encodeURIComponent(game.crosswordId)}`,
-    );
+    const cwRes = await fetch(`/api/crosswords/by-id/${encodeURIComponent(game.crosswordId)}`);
     let cwData = cwRes.ok ? await cwRes.json() : null;
 
     if (!cwData) {
@@ -97,8 +89,7 @@ async function initGame() {
     gameStore.initSocket(game.crosswordId, game.guid);
   } catch (e: unknown) {
     const isExpired =
-      (e instanceof Error &&
-        (e.message.includes("not found") || e.message.includes("expired"))) ||
+      (e instanceof Error && (e.message.includes("not found") || e.message.includes("expired"))) ||
       (typeof e === "object" && e !== null && "expired" in e);
 
     if (isExpired) {
@@ -106,9 +97,7 @@ async function initGame() {
         const providerId = extractProviderId(props.crosswordId);
         const cwData = await fetchTodaysCrossword(providerId);
         const newGame = await createGame(cwData.id);
-        await router.replace(
-          `/game/${encodeURIComponent(cwData.id)}/${newGame.guid}`,
-        );
+        await router.replace(`/game/${encodeURIComponent(cwData.id)}/${newGame.guid}`);
         return;
       } catch {
         error.value = "Game expired and could not create a new one.";

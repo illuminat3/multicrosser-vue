@@ -1,5 +1,5 @@
-import { CrosswordHost, CrosswordProvider } from './types';
-import { GuardianHost } from './guardian/GuardianHost';
+import { CrosswordHost, CrosswordProvider } from "./types";
+import { GuardianHost } from "./guardian/GuardianHost";
 
 const hosts: CrosswordHost[] = [new GuardianHost()];
 

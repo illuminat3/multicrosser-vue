@@ -12,9 +12,7 @@ export class GameSocket {
 
   constructor(crosswordId: string, guid: string) {
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    this.ws = new WebSocket(
-      `${proto}://${location.host}/ws/games/${crosswordId}/${guid}`,
-    );
+    this.ws = new WebSocket(`${proto}://${location.host}/ws/games/${crosswordId}/${guid}`);
 
     this.ws.addEventListener("message", (ev) => {
       try {
