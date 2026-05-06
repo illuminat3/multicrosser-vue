@@ -25,14 +25,23 @@
       @keydown="$emit('keydown', $event)"
       @focus="$emit('click')"
     />
-    <!-- Dash separator: '-' for across, '|' for down -->
-    <span v-if="!isBlack && sepRight === 'dash'" class="cell__sep cell__sep--right" aria-hidden="true">-</span>
-    <span v-if="!isBlack && sepBottom === 'dash'" class="cell__sep cell__sep--bottom" aria-hidden="true">|</span>
+    <span
+      v-if="!isBlack && sepRight === 'dash'"
+      class="cell__sep cell__sep--right"
+      aria-hidden="true"
+      >|</span
+    >
+    <span
+      v-if="!isBlack && sepBottom === 'dash'"
+      class="cell__sep cell__sep--bottom"
+      aria-hidden="true"
+      >|</span
+    >
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch } from "vue";
 
 const props = defineProps<{
   x: number;
@@ -42,8 +51,8 @@ const props = defineProps<{
   clueNumber?: number;
   isActive: boolean;
   isHighlighted: boolean;
-  sepRight?: 'dash' | 'comma';
-  sepBottom?: 'dash' | 'comma';
+  sepRight?: "dash" | "comma";
+  sepBottom?: "dash" | "comma";
 }>();
 
 const emit = defineEmits<{
@@ -58,19 +67,22 @@ watch(
   () => props.isActive,
   (active) => {
     if (active) inputRef.value?.focus();
-  }
+  },
 );
 
 function onInput(e: Event) {
   const input = e.target as HTMLInputElement;
-  const letter = input.value.replace(/[^a-zA-Z]/g, '').slice(-1).toUpperCase();
+  const letter = input.value
+    .replace(/[^a-zA-Z]/g, "")
+    .slice(-1)
+    .toUpperCase();
   input.value = letter;
-  emit('input', letter);
+  emit("input", letter);
 }
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as *;
+@use "@/styles/variables" as *;
 
 .cell {
   position: relative;
@@ -140,12 +152,11 @@ function onInput(e: Event) {
     color: $color-cell-text;
     line-height: 1;
     pointer-events: none;
-    background: $color-cell-bg;
 
     &--right {
-      right: 0;
+      left: 100%;
       top: 50%;
-      transform: translate(50%, -50%);
+      transform: translate(0%, -50%) rotate(90deg);
       padding: 2px 0;
     }
 
