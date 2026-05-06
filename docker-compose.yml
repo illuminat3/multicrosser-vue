@@ -1,0 +1,28 @@
+services:
+  backend:
+    image: registry.illuminat3.xyz/multicrosser-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - crossword-data:/data
+    environment:
+      - PORT=3001
+      - DATA_DIR=/data
+    expose:
+      - "3001"
+
+  frontend:
+    image: registry.illuminat3.xyz/multicrosser:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  crossword-data:

@@ -1,0 +1,63 @@
+@use 'variables' as *;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: $font-sans;
+  background: $color-bg;
+  color: $color-text;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  border-radius: $radius-sm;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.15s;
+
+  &--primary {
+    background: $color-primary;
+    color: #fff;
+    &:hover { background: $color-primary-hover; }
+  }
+
+  &--ghost {
+    background: transparent;
+    border: 1px solid $color-border;
+    color: $color-text;
+    &:hover { background: $color-surface; }
+  }
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
