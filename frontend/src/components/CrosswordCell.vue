@@ -25,7 +25,6 @@
       spellcheck="false"
       @input="onInput"
       @keydown="$emit('keydown', $event)"
-      @focus="$emit('click')"
     />
     <span
       v-if="!isBlack && sepRight === 'dash'"

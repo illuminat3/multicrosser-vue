@@ -98,6 +98,21 @@ const cellSeparators = computed(() => {
   return map;
 });
 
+// Which directions are playable at each cell
+const cellDirections = computed(() => {
+  const map = new Map<string, Set<'across' | 'down'>>();
+  props.crossword.entries.forEach((e) => {
+    for (let i = 0; i < e.length; i++) {
+      const x = e.direction === 'across' ? e.position.x + i : e.position.x;
+      const y = e.direction === 'down' ? e.position.y + i : e.position.y;
+      const key = `${x},${y}`;
+      if (!map.has(key)) map.set(key, new Set());
+      map.get(key)!.add(e.direction);
+    }
+  });
+  return map;
+});
+
 const cells = computed((): GridCell[] => {
   const result: GridCell[] = [];
   const { rows, cols } = props.crossword.dimensions;
@@ -137,8 +152,31 @@ function isHighlighted(x: number, y: number): boolean {
 }
 
 function handleCellClick(x: number, y: number) {
-  if (whiteCells.value.has(`${x},${y}`)) {
-    gameStore.setActiveCell(x, y);
+  if (!whiteCells.value.has(`${x},${y}`)) return;
+
+  const dirs = cellDirections.value.get(`${x},${y}`) ?? new Set<'across' | 'down'>();
+  const alreadyActive = gameStore.activeCell?.x === x && gameStore.activeCell?.y === y;
+
+  if (alreadyActive) {
+    const other = gameStore.activeDirection === 'across' ? 'down' : 'across';
+    if (dirs.has(other)) gameStore.activeDirection = other;
+    return;
+  }
+
+  // Check against the OLD clue before moving active cell
+  const prevClue = gameStore.activeClue;
+  const keepDirection = (() => {
+    if (!prevClue || !dirs.has(prevClue.direction)) return false;
+    return prevClue.direction === 'across'
+      ? prevClue.position.y === y && x >= prevClue.position.x && x < prevClue.position.x + prevClue.length
+      : prevClue.position.x === x && y >= prevClue.position.y && y < prevClue.position.y + prevClue.length;
+  })();
+
+  gameStore.activeCell = { x, y };
+
+  if (!keepDirection) {
+    // Not in current clue — prefer across, fall back to down
+    gameStore.activeDirection = dirs.has('across') ? 'across' : 'down';
   }
 }
 
@@ -156,37 +194,42 @@ function handleKeydown(x: number, y: number, e: KeyboardEvent) {
       gameStore.setCell(x, y, "");
     }
   } else if (e.key === "ArrowRight") {
+    e.preventDefault();
     gameStore.activeDirection = "across";
-    advanceCursor(x, y);
+    moveCursor(x, y, 1, 0);
   } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
     gameStore.activeDirection = "across";
-    retreatCursor(x, y);
+    moveCursor(x, y, -1, 0);
   } else if (e.key === "ArrowDown") {
+    e.preventDefault();
     gameStore.activeDirection = "down";
-    advanceCursor(x, y);
+    moveCursor(x, y, 0, 1);
   } else if (e.key === "ArrowUp") {
+    e.preventDefault();
     gameStore.activeDirection = "down";
-    retreatCursor(x, y);
+    moveCursor(x, y, 0, -1);
   } else if (e.key === "Tab") {
     e.preventDefault();
     gameStore.toggleDirection();
   }
 }
 
-function advanceCursor(x: number, y: number) {
-  const dir = gameStore.activeDirection;
-  const next = dir === "across" ? { x: x + 1, y } : { x, y: y + 1 };
+function moveCursor(x: number, y: number, dx: number, dy: number) {
+  const next = { x: x + dx, y: y + dy };
   if (whiteCells.value.has(`${next.x},${next.y}`)) {
     gameStore.activeCell = next;
   }
 }
 
+function advanceCursor(x: number, y: number) {
+  const dir = gameStore.activeDirection;
+  moveCursor(x, y, dir === "across" ? 1 : 0, dir === "across" ? 0 : 1);
+}
+
 function retreatCursor(x: number, y: number) {
   const dir = gameStore.activeDirection;
-  const prev = dir === "across" ? { x: x - 1, y } : { x, y: y - 1 };
-  if (whiteCells.value.has(`${prev.x},${prev.y}`)) {
-    gameStore.activeCell = prev;
-  }
+  moveCursor(x, y, dir === "across" ? -1 : 0, dir === "across" ? 0 : -1);
 }
 </script>
 

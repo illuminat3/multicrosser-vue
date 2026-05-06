@@ -54,14 +54,6 @@ export const useGameStore = defineStore('game', () => {
     socket.value?.sendCellUpdate(x, y, value);
   }
 
-  function setActiveCell(x: number, y: number) {
-    if (activeCell.value?.x === x && activeCell.value?.y === y) {
-      activeDirection.value = activeDirection.value === 'across' ? 'down' : 'across';
-    } else {
-      activeCell.value = { x, y };
-    }
-  }
-
   function toggleDirection() {
     activeDirection.value = activeDirection.value === 'across' ? 'down' : 'across';
   }
@@ -82,7 +74,6 @@ export const useGameStore = defineStore('game', () => {
     activeClue,
     initSocket,
     setCell,
-    setActiveCell,
     toggleDirection,
     cleanup,
   };
