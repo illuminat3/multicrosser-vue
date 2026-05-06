@@ -78,6 +78,7 @@ function onKeydown(e: KeyboardEvent) {
     emit("input", e.key.toUpperCase());
     return;
   }
+  e.preventDefault();
   emit("keydown", e);
 }
 </script>
