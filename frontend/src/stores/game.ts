@@ -54,6 +54,53 @@ export const useGameStore = defineStore("game", () => {
     socket.value?.sendCellUpdate(x, y, value);
   }
 
+  function buildSolutionMap(): Map<string, string> {
+    const map = new Map<string, string>();
+    if (!crossword.value) return map;
+    for (const entry of crossword.value.entries) {
+      if (!entry.solution) continue;
+      for (let i = 0; i < entry.length; i++) {
+        const x = entry.direction === "across" ? entry.position.x + i : entry.position.x;
+        const y = entry.direction === "down" ? entry.position.y + i : entry.position.y;
+        map.set(`${x},${y}`, entry.solution[i].toUpperCase());
+      }
+    }
+    return map;
+  }
+
+  function checkWord() {
+    const entry = activeClue.value;
+    if (!entry?.solution) return;
+    for (let i = 0; i < entry.length; i++) {
+      const x = entry.direction === "across" ? entry.position.x + i : entry.position.x;
+      const y = entry.direction === "down" ? entry.position.y + i : entry.position.y;
+      const key = `${x},${y}`;
+      const typed = cells.value[key];
+      if (typed && typed !== entry.solution[i].toUpperCase()) {
+        setCell(x, y, "");
+      }
+    }
+  }
+
+  function checkAll() {
+    const solution = buildSolutionMap();
+    for (const [key, correct] of solution) {
+      const typed = cells.value[key];
+      if (typed && typed !== correct) {
+        const [xStr, yStr] = key.split(",");
+        setCell(Number(xStr), Number(yStr), "");
+      }
+    }
+  }
+
+  function revealAll() {
+    const solution = buildSolutionMap();
+    for (const [key, correct] of solution) {
+      const [xStr, yStr] = key.split(",");
+      setCell(Number(xStr), Number(yStr), correct);
+    }
+  }
+
   function toggleDirection() {
     activeDirection.value = activeDirection.value === "across" ? "down" : "across";
   }
@@ -74,6 +121,9 @@ export const useGameStore = defineStore("game", () => {
     activeClue,
     initSocket,
     setCell,
+    checkWord,
+    checkAll,
+    revealAll,
     toggleDirection,
     cleanup,
   };

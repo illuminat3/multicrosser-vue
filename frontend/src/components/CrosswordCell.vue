@@ -107,7 +107,7 @@ function onKeydown(e: KeyboardEvent) {
     background: $color-cell-active;
   }
 
-  &--sep-right-comma {
+&--sep-right-comma {
     border-right-color: $color-cell-text;
   }
   &--sep-bottom-comma {

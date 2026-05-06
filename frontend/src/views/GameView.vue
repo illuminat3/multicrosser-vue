@@ -23,6 +23,34 @@
       <div class="game__body">
         <div class="game__grid-wrap">
           <CrosswordGrid :crossword="gameStore.crossword" />
+          <div
+            v-if="gameStore.crossword.solutionAvailable"
+            class="game__controls"
+            @click.stop
+          >
+            <button
+              class="btn"
+              :class="pendingAction === 'checkWord' ? 'btn--primary' : 'btn--ghost'"
+              :disabled="!gameStore.activeClue"
+              @click="handleAction('checkWord')"
+            >
+              {{ pendingAction === "checkWord" ? "Check Word?" : "Check Word" }}
+            </button>
+            <button
+              class="btn"
+              :class="pendingAction === 'checkAll' ? 'btn--primary' : 'btn--ghost'"
+              @click="handleAction('checkAll')"
+            >
+              {{ pendingAction === "checkAll" ? "Check All?" : "Check All" }}
+            </button>
+            <button
+              class="btn"
+              :class="pendingAction === 'revealAll' ? 'btn--primary' : 'btn--ghost'"
+              @click="handleAction('revealAll')"
+            >
+              {{ pendingAction === "revealAll" ? "Reveal All?" : "Reveal All" }}
+            </button>
+          </div>
         </div>
         <div class="game__clues">
           <ClueList
@@ -37,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useGameStore } from "@/stores/game";
 import { fetchGame, fetchTodaysCrossword, createGame } from "@/services/api";
 import type { CrosswordEntry } from "@/types";
@@ -52,6 +80,24 @@ const loading = ref(true);
 const error = ref("");
 const copied = ref(false);
 const expiresAt = ref("");
+const pendingAction = ref<"checkWord" | "checkAll" | "revealAll" | null>(null);
+
+function handleAction(action: "checkWord" | "checkAll" | "revealAll") {
+  if (pendingAction.value === action) {
+    if (action === "checkWord") gameStore.checkWord();
+    else if (action === "checkAll") gameStore.checkAll();
+    else gameStore.revealAll();
+    pendingAction.value = null;
+  } else {
+    pendingAction.value = action;
+  }
+}
+
+function resetPending() {
+  pendingAction.value = null;
+}
+
+watch(() => gameStore.cells, resetPending, { deep: true });
 
 async function initGame() {
   loading.value = true;
@@ -113,8 +159,14 @@ async function copyLink() {
   setTimeout(() => (copied.value = false), 2000);
 }
 
-onMounted(initGame);
-onUnmounted(() => gameStore.cleanup());
+onMounted(() => {
+  initGame();
+  document.addEventListener("click", resetPending);
+});
+onUnmounted(() => {
+  gameStore.cleanup();
+  document.removeEventListener("click", resetPending);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -159,6 +211,13 @@ onUnmounted(() => gameStore.cleanup());
     display: flex;
     gap: 2rem;
     align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
     flex-wrap: wrap;
   }
 
