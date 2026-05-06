@@ -7,6 +7,8 @@
       'cell--highlighted': isHighlighted && !isActive,
       'cell--sep-right-comma': sepRight === 'comma',
       'cell--sep-bottom-comma': sepBottom === 'comma',
+      'cell--sep-left-comma': sepLeft === 'comma',
+      'cell--sep-top-comma': sepTop === 'comma',
     }"
     @click="$emit('click')"
   >
@@ -53,6 +55,8 @@ const props = defineProps<{
   isHighlighted: boolean;
   sepRight?: "dash" | "comma";
   sepBottom?: "dash" | "comma";
+  sepLeft?: "comma";
+  sepTop?: "comma";
 }>();
 
 const emit = defineEmits<{
@@ -105,13 +109,10 @@ function onInput(e: Event) {
     background: $color-cell-active;
   }
 
-  &--sep-right-comma {
-    border-right: 3px solid $color-cell-text;
-  }
-
-  &--sep-bottom-comma {
-    border-bottom: 3px solid $color-cell-text;
-  }
+  &--sep-right-comma  { border-right-color: $color-cell-text; }
+  &--sep-bottom-comma { border-bottom-color: $color-cell-text; }
+  &--sep-left-comma   { border-left-color: $color-cell-text; }
+  &--sep-top-comma    { border-top-color: $color-cell-text; }
 
   &__number {
     position: absolute;

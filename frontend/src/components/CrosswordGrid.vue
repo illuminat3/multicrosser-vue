@@ -12,6 +12,8 @@
       :is-highlighted="isHighlighted(cell.x, cell.y)"
       :sep-right="cellSeparators.get(`${cell.x},${cell.y}`)?.right"
       :sep-bottom="cellSeparators.get(`${cell.x},${cell.y}`)?.bottom"
+      :sep-left="cellSeparators.get(`${cell.x},${cell.y}`)?.left"
+      :sep-top="cellSeparators.get(`${cell.x},${cell.y}`)?.top"
       @click="handleCellClick(cell.x, cell.y)"
       @input="handleInput(cell.x, cell.y, $event)"
       @keydown="handleKeydown(cell.x, cell.y, $event)"
@@ -64,7 +66,11 @@ const cellNumbers = computed(() => {
 });
 
 const cellSeparators = computed(() => {
-  const map = new Map<string, { right?: SepType; bottom?: SepType }>();
+  const map = new Map<string, { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType }>();
+
+  function mark(key: string, patch: { right?: SepType; bottom?: SepType; left?: SepType; top?: SepType }) {
+    map.set(key, { ...map.get(key), ...patch });
+  }
 
   for (const entry of props.crossword.entries) {
     const locs = entry.separatorLocations;
@@ -75,13 +81,15 @@ const cellSeparators = computed(() => {
 
       for (const pos of positions as number[]) {
         if (entry.direction === "across") {
-          const key = `${entry.position.x + pos - 1},${entry.position.y}`;
-          const cur = map.get(key) ?? {};
-          map.set(key, { ...cur, right: sepType });
+          const x = entry.position.x + pos - 1;
+          const y = entry.position.y;
+          mark(`${x},${y}`, { right: sepType });
+          if (sepType === "comma") mark(`${x + 1},${y}`, { left: sepType });
         } else {
-          const key = `${entry.position.x},${entry.position.y + pos - 1}`;
-          const cur = map.get(key) ?? {};
-          map.set(key, { ...cur, bottom: sepType });
+          const x = entry.position.x;
+          const y = entry.position.y + pos - 1;
+          mark(`${x},${y}`, { bottom: sepType });
+          if (sepType === "comma") mark(`${x},${y + 1}`, { top: sepType });
         }
       }
     }
