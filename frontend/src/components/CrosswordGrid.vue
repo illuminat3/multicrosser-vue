@@ -240,6 +240,8 @@ function moveCursor(x: number, y: number, dx: number, dy: number) {
 
     if (whiteCells.value.has(`${nx},${ny}`)) {
       gameStore.activeCell = { x: nx, y: ny };
+      const dirs = cellDirections.value.get(`${nx},${ny}`);
+      if (dirs?.size === 1) gameStore.activeDirection = [...dirs][0];
       return;
     }
 
