@@ -90,7 +90,7 @@ function onKeydown(e: KeyboardEvent) {
   position: relative;
   width: $cell-size;
   height: $cell-size;
-  border: 1px solid darken($color-cell-bg, 30%);
+  border: 1px solid $color-cell-border;
   background: $color-cell-bg;
   overflow: visible;
 
