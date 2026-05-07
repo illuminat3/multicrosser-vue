@@ -270,7 +270,14 @@ function moveCursor(x: number, y: number, dx: number, dy: number) {
 
 function advanceCursor(x: number, y: number) {
   const dir = gameStore.activeDirection;
-  moveCursor(x, y, dir === "across" ? 1 : 0, dir === "across" ? 0 : 1);
+  const dx = dir === "across" ? 1 : 0;
+  const dy = dir === "across" ? 0 : 1;
+  const { rows, cols } = props.crossword.dimensions;
+  const nx = x + dx;
+  const ny = y + dy;
+  if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) return;
+  if (!whiteCells.value.has(`${nx},${ny}`)) return;
+  gameStore.activeCell = { x: nx, y: ny };
 }
 
 function retreatCursor(x: number, y: number) {
