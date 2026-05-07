@@ -282,6 +282,11 @@ function advanceCursor(x: number, y: number) {
 
 function retreatCursor(x: number, y: number) {
   const dir = gameStore.activeDirection;
+  const clue = gameStore.activeClue;
+  if (clue) {
+    if (dir === "across" && x <= clue.position.x) return;
+    if (dir === "down" && y <= clue.position.y) return;
+  }
   moveCursor(x, y, dir === "across" ? -1 : 0, dir === "across" ? 0 : -1);
 }
 </script>
