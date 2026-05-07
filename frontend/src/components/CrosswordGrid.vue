@@ -42,6 +42,7 @@ interface GridCell {
 }
 
 const gridStyle = computed(() => ({
+  '--cols': props.crossword.dimensions.cols,
   gridTemplateColumns: `repeat(${props.crossword.dimensions.cols}, var(--cell-size))`,
   gridTemplateRows: `repeat(${props.crossword.dimensions.rows}, var(--cell-size))`,
 }));
@@ -290,7 +291,7 @@ function retreatCursor(x: number, y: number) {
 @use "@/styles/variables" as *;
 
 .crossword-grid {
-  --cell-size: #{$cell-size};
+  --cell-size: min(#{$cell-size}, calc((100vw - 2rem) / var(--cols)));
   display: grid;
   border: $cell-border solid $color-cell-text;
   width: fit-content;
