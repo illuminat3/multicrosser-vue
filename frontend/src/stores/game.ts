@@ -6,6 +6,7 @@ import { GameSocket } from "@/services/websocket";
 export const useGameStore = defineStore("game", () => {
   const crossword = ref<CrosswordData | null>(null);
   const cells = ref<Record<string, string>>({});
+  const lockedCells = ref<Set<string>>(new Set());
   const activeCell = ref<{ x: number; y: number } | null>(null);
   const activeDirection = ref<"across" | "down">("across");
   const socket = ref<GameSocket | null>(null);
@@ -78,6 +79,8 @@ export const useGameStore = defineStore("game", () => {
       const typed = cells.value[key];
       if (typed && typed !== entry.solution[i].toUpperCase()) {
         setCell(x, y, "");
+      } else if (typed && typed === entry.solution[i].toUpperCase()) {
+        lockedCells.value.add(key);
       }
     }
   }
@@ -89,6 +92,8 @@ export const useGameStore = defineStore("game", () => {
       if (typed && typed !== correct) {
         const [xStr, yStr] = key.split(",");
         setCell(Number(xStr), Number(yStr), "");
+      } else if (typed && typed === correct) {
+        lockedCells.value.add(key);
       }
     }
   }
@@ -110,12 +115,14 @@ export const useGameStore = defineStore("game", () => {
     socket.value = null;
     crossword.value = null;
     cells.value = {};
+    lockedCells.value = new Set();
     activeCell.value = null;
   }
 
   return {
     crossword,
     cells,
+    lockedCells,
     activeCell,
     activeDirection,
     activeClue,

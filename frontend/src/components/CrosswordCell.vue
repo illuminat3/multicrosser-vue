@@ -5,6 +5,7 @@
       'cell--black': isBlack,
       'cell--active': isActive,
       'cell--highlighted': isHighlighted && !isActive,
+      'cell--locked': isLocked && !isActive,
       'cell--sep-right-comma': sepRight === 'comma',
       'cell--sep-bottom-comma': sepBottom === 'comma',
       'cell--sep-left-comma': sepLeft === 'comma',
@@ -51,6 +52,7 @@ const props = defineProps<{
   clueNumber?: number;
   isActive: boolean;
   isHighlighted: boolean;
+  isLocked?: boolean;
   sepRight?: "dash" | "comma";
   sepBottom?: "dash" | "comma";
   sepLeft?: "dash" | "comma";
@@ -105,6 +107,10 @@ function onKeydown(e: KeyboardEvent) {
 
   &--active {
     background: $color-cell-active;
+  }
+
+  &--locked {
+    background: $color-cell-locked;
   }
 
 &--sep-right-comma {
