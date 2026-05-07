@@ -90,8 +90,8 @@ function onKeydown(e: KeyboardEvent) {
 
 .cell {
   position: relative;
-  width: $cell-size;
-  height: $cell-size;
+  width: var(--cell-size);
+  height: var(--cell-size);
   border: 1px solid $color-cell-border;
   background: $color-cell-bg;
   overflow: visible;
