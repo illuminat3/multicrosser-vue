@@ -7,7 +7,7 @@
           v-for="entry in across"
           :key="entry.id"
           class="clue-list__item"
-          :class="{ 'clue-list__item--active': activeClue?.id === entry.id }"
+          :class="{ 'clue-list__item--active': activeClue?.id === entry.id, 'clue-list__item--completed': isCompleted(entry) }"
           @click="$emit('clue-click', entry)"
         >
           <span class="clue-list__num">{{ entry.humanNumber }}</span>
@@ -23,7 +23,7 @@
           v-for="entry in down"
           :key="entry.id"
           class="clue-list__item"
-          :class="{ 'clue-list__item--active': activeClue?.id === entry.id }"
+          :class="{ 'clue-list__item--active': activeClue?.id === entry.id, 'clue-list__item--completed': isCompleted(entry) }"
           @click="$emit('clue-click', entry)"
         >
           <span class="clue-list__num">{{ entry.humanNumber }}</span>
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { CrosswordEntry } from "@/types";
+import { useGameStore } from "@/stores/game";
 
 const props = defineProps<{
   entries: CrosswordEntry[];
@@ -46,8 +47,19 @@ const props = defineProps<{
 
 defineEmits<{ "clue-click": [entry: CrosswordEntry] }>();
 
+const gameStore = useGameStore();
+
 const across = computed(() => props.entries.filter((e) => e.direction === "across"));
 const down = computed(() => props.entries.filter((e) => e.direction === "down"));
+
+function isCompleted(entry: CrosswordEntry): boolean {
+  for (let i = 0; i < entry.length; i++) {
+    const x = entry.direction === "across" ? entry.position.x + i : entry.position.x;
+    const y = entry.direction === "down" ? entry.position.y + i : entry.position.y;
+    if (!gameStore.lockedCells.has(`${x},${y}`)) return false;
+  }
+  return true;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -95,6 +107,22 @@ const down = computed(() => props.entries.filter((e) => e.direction === "down"))
     &--active {
       background: rgba($color-primary, 0.2);
       color: $color-text;
+    }
+
+    &--completed {
+      color: $color-text-muted;
+
+      .clue-list__num {
+        color: $color-text-muted;
+      }
+
+      &::after {
+        content: "✓";
+        color: #4caf50;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-left: 0.3rem;
+      }
     }
   }
 
