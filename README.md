@@ -57,6 +57,6 @@ Frontend dev server proxies `/api` and `/ws` to `localhost:3001`.
 docker compose up --build
 
 # Build individual images
-docker build -t registry.illuminat3.xyz/multicrosser ./frontend
-docker build -t registry.illuminat3.xyz/multicrosser-backend ./backend
+docker build ./frontend
+docker build ./backend
 ```
