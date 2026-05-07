@@ -10,6 +10,7 @@
       :clue-number="cell.clueNumber"
       :is-active="isActive(cell.x, cell.y)"
       :is-highlighted="isHighlighted(cell.x, cell.y)"
+      :is-locked="gameStore.lockedCells.has(`${cell.x},${cell.y}`)"
       :sep-right="cellSeparators.get(`${cell.x},${cell.y}`)?.right"
       :sep-bottom="cellSeparators.get(`${cell.x},${cell.y}`)?.bottom"
       :sep-left="cellSeparators.get(`${cell.x},${cell.y}`)?.left"
@@ -198,6 +199,10 @@ onUnmounted(() => document.removeEventListener("keydown", handleGlobalKeydown));
 
 function handleInput(x: number, y: number, value: string) {
   if (!value) return;
+  if (gameStore.lockedCells.has(`${x},${y}`)) {
+    advanceCursor(x, y);
+    return;
+  }
   const current = gameStore.cells[`${x},${y}`] ?? "";
   if (current === "") {
     gameStore.setCell(x, y, value);
@@ -210,7 +215,7 @@ function handleInput(x: number, y: number, value: string) {
 function handleKeydown(x: number, y: number, e: KeyboardEvent) {
   if (e.key === "Backspace") {
     const key = `${x},${y}`;
-    if (!gameStore.cells[key]) {
+    if (gameStore.lockedCells.has(key) || !gameStore.cells[key]) {
       retreatCursor(x, y);
     } else {
       gameStore.setCell(x, y, "");
