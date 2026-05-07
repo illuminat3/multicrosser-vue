@@ -1,5 +1,5 @@
 <template>
-  <div class="crossword-grid" :style="gridStyle">
+  <div ref="gridRef" class="crossword-grid" :style="gridStyle">
     <CrosswordCell
       v-for="cell in cells"
       :key="`${cell.x},${cell.y}`"
@@ -22,13 +22,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { CrosswordData } from "@/types";
 import { useGameStore } from "@/stores/game";
 import CrosswordCell from "./CrosswordCell.vue";
 
 const props = defineProps<{ crossword: CrosswordData }>();
 const gameStore = useGameStore();
+const gridRef = ref<HTMLElement | null>(null);
 
 type SepType = "dash" | "comma";
 
@@ -178,6 +179,22 @@ function handleCellClick(x: number, y: number) {
     gameStore.activeDirection = dirs.has("across") ? "across" : "down";
   }
 }
+
+function handleGlobalKeydown(e: KeyboardEvent) {
+  if (!gameStore.activeCell) return;
+  if (gridRef.value?.contains(e.target as Node)) return;
+
+  const { x, y } = gameStore.activeCell;
+  if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+    e.preventDefault();
+    handleInput(x, y, e.key.toUpperCase());
+  } else {
+    handleKeydown(x, y, e);
+  }
+}
+
+onMounted(() => document.addEventListener("keydown", handleGlobalKeydown));
+onUnmounted(() => document.removeEventListener("keydown", handleGlobalKeydown));
 
 function handleInput(x: number, y: number, value: string) {
   if (!value) return;
