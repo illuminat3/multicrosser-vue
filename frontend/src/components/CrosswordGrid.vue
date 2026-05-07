@@ -214,6 +214,7 @@ function handleKeydown(x: number, y: number, e: KeyboardEvent) {
       retreatCursor(x, y);
     } else {
       gameStore.setCell(x, y, "");
+      retreatCursor(x, y);
     }
   } else if (e.key === "ArrowRight") {
     e.preventDefault();
