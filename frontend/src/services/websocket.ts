@@ -9,6 +9,7 @@ export class GameSocket {
   private ws: WebSocket;
   private handlers: MessageHandler[] = [];
   private pendingUpdates = new Map<string, ReturnType<typeof setTimeout>>();
+  private heartbeat: ReturnType<typeof setInterval>;
 
   constructor(crosswordId: string, guid: string) {
     const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -22,6 +23,12 @@ export class GameSocket {
         // ignore
       }
     });
+
+    this.heartbeat = setInterval(() => {
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 30_000);
   }
 
   onMessage(handler: MessageHandler) {
@@ -48,6 +55,7 @@ export class GameSocket {
   }
 
   close() {
+    clearInterval(this.heartbeat);
     this.ws.close();
   }
 

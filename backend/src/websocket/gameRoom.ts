@@ -14,7 +14,9 @@ type CellUpdateMsg = {
   value: string;
 };
 
-type ClientMessage = CellUpdateMsg;
+type PingMsg = { type: "ping" };
+
+type ClientMessage = CellUpdateMsg | PingMsg;
 
 const rooms = new Map<string, Set<Client>>();
 
