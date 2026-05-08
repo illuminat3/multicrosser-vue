@@ -73,33 +73,37 @@ function sanitizeClueHtml(clue: string): string {
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(clue, "text/html");
-  sanitizeNode(doc.body, doc);
+  sanitizeNode(doc.body);
   return doc.body.innerHTML;
 }
 
-function sanitizeNode(node: HTMLElement, doc: Document): void {
-  for (const child of Array.from(node.childNodes)) {
-    if (child.nodeType !== Node.ELEMENT_NODE) continue;
+function sanitizeNode(node: HTMLElement): void {
+  let child = node.firstChild;
 
-    const element = child as HTMLElement;
-    const tagName = element.tagName.toLowerCase();
-    if (!ALLOWED_CLUE_TAGS.has(tagName)) {
-      const fragment = doc.createDocumentFragment();
-      while (element.firstChild) {
-        fragment.appendChild(element.firstChild);
+  while (child) {
+    const nextSibling = child.nextSibling;
+
+    if (child.nodeType === Node.COMMENT_NODE) {
+      node.removeChild(child);
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const element = child as HTMLElement;
+      const tagName = element.tagName.toLowerCase();
+
+      if (!ALLOWED_CLUE_TAGS.has(tagName)) {
+        sanitizeNode(element);
+        while (element.firstChild) {
+          node.insertBefore(element.firstChild, element);
+        }
+        node.removeChild(element);
+      } else {
+        for (const attribute of Array.from(element.attributes)) {
+          element.removeAttribute(attribute.name);
+        }
+        sanitizeNode(element);
       }
-      node.replaceChild(fragment, element);
-      sanitizeNode(node, doc);
-      continue;
     }
 
-    for (const attribute of Array.from(element.attributes)) {
-      if (!(tagName === "span" && attribute.name === "class")) {
-        element.removeAttribute(attribute.name);
-      }
-    }
-
-    sanitizeNode(element, doc);
+    child = nextSibling;
   }
 }
 </script>
