@@ -7,11 +7,14 @@
           v-for="entry in across"
           :key="entry.id"
           class="clue-list__item"
-          :class="{ 'clue-list__item--active': activeClue?.id === entry.id, 'clue-list__item--completed': isCompleted(entry) }"
+          :class="{
+            'clue-list__item--active': activeClue?.id === entry.id,
+            'clue-list__item--completed': isCompleted(entry),
+          }"
           @click="$emit('clue-click', entry)"
         >
           <span class="clue-list__num">{{ entry.humanNumber }}</span>
-          <span class="clue-list__text">{{ entry.clue }}</span>
+          <span class="clue-list__text" v-html="sanitizeClueHtml(entry.clue)" />
           <span class="clue-list__len">({{ entry.format ?? entry.length }})</span>
         </li>
       </ul>
@@ -23,11 +26,14 @@
           v-for="entry in down"
           :key="entry.id"
           class="clue-list__item"
-          :class="{ 'clue-list__item--active': activeClue?.id === entry.id, 'clue-list__item--completed': isCompleted(entry) }"
+          :class="{
+            'clue-list__item--active': activeClue?.id === entry.id,
+            'clue-list__item--completed': isCompleted(entry),
+          }"
           @click="$emit('clue-click', entry)"
         >
           <span class="clue-list__num">{{ entry.humanNumber }}</span>
-          <span class="clue-list__text">{{ entry.clue }}</span>
+          <span class="clue-list__text" v-html="sanitizeClueHtml(entry.clue)" />
           <span class="clue-list__len">({{ entry.format ?? entry.length }})</span>
         </li>
       </ul>
@@ -51,6 +57,7 @@ const gameStore = useGameStore();
 
 const across = computed(() => props.entries.filter((e) => e.direction === "across"));
 const down = computed(() => props.entries.filter((e) => e.direction === "down"));
+const ALLOWED_CLUE_TAGS = new Set(["span", "i", "em", "b", "strong", "sup", "sub", "br"]);
 
 function isCompleted(entry: CrosswordEntry): boolean {
   for (let i = 0; i < entry.length; i++) {
@@ -59,6 +66,45 @@ function isCompleted(entry: CrosswordEntry): boolean {
     if (!gameStore.lockedCells.has(`${x},${y}`)) return false;
   }
   return true;
+}
+
+function sanitizeClueHtml(clue: string): string {
+  if (typeof window === "undefined" || !clue.includes("<")) return clue;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(clue, "text/html");
+  sanitizeNode(doc.body);
+  return doc.body.innerHTML;
+}
+
+function sanitizeNode(node: HTMLElement): void {
+  let child = node.firstChild;
+
+  while (child) {
+    const nextSibling = child.nextSibling;
+
+    if (child.nodeType === Node.COMMENT_NODE) {
+      node.removeChild(child);
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const element = child as HTMLElement;
+      const tagName = element.tagName.toLowerCase();
+
+      if (!ALLOWED_CLUE_TAGS.has(tagName)) {
+        sanitizeNode(element);
+        while (element.firstChild) {
+          node.insertBefore(element.firstChild, element);
+        }
+        node.removeChild(element);
+      } else {
+        for (const attribute of Array.from(element.attributes)) {
+          element.removeAttribute(attribute.name);
+        }
+        sanitizeNode(element);
+      }
+    }
+
+    child = nextSibling;
+  }
 }
 </script>
 
