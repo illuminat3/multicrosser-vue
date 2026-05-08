@@ -12,4 +12,5 @@ jobs:
         with:
           service-url: ${{ secrets.BUILDER_URL }}
           api-password: ${{ secrets.BUILDER_PASSWORD }}
+          repo: https://github.com/illuminat3/multicrosser-vue.git
           image-name: multicrosser:latest
