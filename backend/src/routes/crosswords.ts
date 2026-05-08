@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAllHosts } from "../providers/registry";
-import { getOrFetchCrossword } from "../db/crosswords";
+import { getOrFetchCrossword, getAvailableDates } from "../db/crosswords";
 import { crosswordsDb } from "../db/index";
 
 const router = Router();
@@ -25,6 +25,27 @@ router.get("/:providerId/today", async (req, res) => {
     const msg = err instanceof Error ? err.message : "Unknown error";
     res.status(502).json({ error: msg });
   }
+});
+
+router.get("/:providerId/date/:date", async (req, res) => {
+  const { providerId, date } = req.params;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    res.status(400).json({ error: "Date must be YYYY-MM-DD" });
+    return;
+  }
+  try {
+    const parsed = new Date(`${date}T12:00:00Z`);
+    const data = await getOrFetchCrossword(providerId, parsed);
+    res.json(data);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    res.status(502).json({ error: msg });
+  }
+});
+
+router.get("/:providerId/history", (req, res) => {
+  const dates = getAvailableDates(req.params.providerId, 30);
+  res.json(dates);
 });
 
 router.get("/by-id/:crosswordId", (req, res) => {

@@ -25,8 +25,16 @@ export abstract class GuardianBaseProvider implements CrosswordProvider {
   }
 
   private numberForDate(date: Date): number {
+    const p = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(date);
+    const get = (t: Intl.DateTimeFormatPartTypes) => p.find((x) => x.type === t)!.value;
+    const ukDateStr = `${get("year")}-${get("month")}-${get("day")}`;
     const anchorMs = new Date(this.anchor.date).getTime();
-    const targetMs = new Date(date.toISOString().split("T")[0]).getTime();
+    const targetMs = new Date(ukDateStr).getTime();
     const daysDiff = Math.round((targetMs - anchorMs) / 86_400_000);
     return this.anchor.number + daysDiff;
   }
