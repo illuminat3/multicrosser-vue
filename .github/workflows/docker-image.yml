@@ -1,0 +1,15 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: illuminat3/docker-image-creator@main
+        with:
+          service-url: ${{ secrets.BUILDER_URL }}
+          api-password: ${{ secrets.BUILDER_PASSWORD }}
+          image-name: multicrosser:latest
