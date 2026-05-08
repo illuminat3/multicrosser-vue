@@ -36,6 +36,7 @@ export interface CrosswordData {
 
 export interface GameState {
   cells: Record<string, string>;
+  lockedCells: string[];
 }
 
 export interface Game {

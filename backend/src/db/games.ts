@@ -5,6 +5,7 @@ const GAME_TTL_MS = 36 * 60 * 60 * 1000;
 
 export interface GameState {
   cells: Record<string, string>;
+  lockedCells: string[];
 }
 
 export interface Game {
@@ -24,10 +25,11 @@ interface GameRow {
 }
 
 function rowToGame(row: GameRow): Game {
+  const state = JSON.parse(row.state) as Partial<GameState> & { cells: Record<string, string> };
   return {
     guid: row.guid,
     crosswordId: row.crossword_id,
-    state: JSON.parse(row.state) as GameState,
+    state: { cells: state.cells, lockedCells: state.lockedCells ?? [] },
     createdAt: row.created_at,
     expiresAt: row.expires_at,
   };
@@ -51,7 +53,7 @@ export function createGame(crosswordId: string): Game {
   const game: Game = {
     guid: uuidv4(),
     crosswordId,
-    state: { cells: {} },
+    state: { cells: {}, lockedCells: [] },
     createdAt: now,
     expiresAt: now + GAME_TTL_MS,
   };
@@ -76,6 +78,21 @@ export function updateCell(guid: string, x: number, y: number, value: string): G
   } else {
     game.state.cells[key] = value.toUpperCase();
   }
+
+  gamesDb
+    .prepare("UPDATE games SET state = ? WHERE guid = ?")
+    .run(JSON.stringify(game.state), guid);
+
+  return game;
+}
+
+export function lockCells(guid: string, keys: string[]): Game | null {
+  const game = getGame(guid);
+  if (!game) return null;
+
+  const existing = new Set(game.state.lockedCells);
+  for (const k of keys) existing.add(k);
+  game.state.lockedCells = Array.from(existing);
 
   gamesDb
     .prepare("UPDATE games SET state = ? WHERE guid = ?")

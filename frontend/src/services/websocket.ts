@@ -1,6 +1,7 @@
 type WsMessage =
-  | { type: "state"; state: { cells: Record<string, string> } }
+  | { type: "state"; state: { cells: Record<string, string>; lockedCells: string[] } }
   | { type: "cell_update"; x: number; y: number; value: string }
+  | { type: "cells_locked"; keys: string[] }
   | { type: "error"; message: string };
 
 type MessageHandler = (msg: WsMessage) => void;
@@ -52,6 +53,12 @@ export class GameSocket {
     }, 50);
 
     this.pendingUpdates.set(key, timer);
+  }
+
+  sendCellsLocked(keys: string[]) {
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ type: "cells_locked", keys }));
+    }
   }
 
   close() {
