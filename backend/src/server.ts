@@ -6,6 +6,7 @@ import crosswordsRouter from "./routes/crosswords";
 import gamesRouter from "./routes/games";
 import { attachWebSocket } from "./websocket/gameRoom";
 import { deleteExpiredGames } from "./db/games";
+import { deleteOldCrosswords } from "./db/crosswords";
 
 import "./db/index";
 
@@ -22,8 +23,10 @@ attachWebSocket(wss);
 
 setInterval(
   () => {
-    const deleted = deleteExpiredGames();
-    if (deleted > 0) console.log(`Cleaned up ${deleted} expired games`);
+    const deletedGames = deleteExpiredGames();
+    if (deletedGames > 0) console.log(`Cleaned up ${deletedGames} expired games`);
+    const deletedCrosswords = deleteOldCrosswords(30);
+    if (deletedCrosswords > 0) console.log(`Cleaned up ${deletedCrosswords} old crosswords`);
   },
   60 * 60 * 1000,
 );

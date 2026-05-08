@@ -2,8 +2,15 @@ import { crosswordsDb } from "./index";
 import { CrosswordData } from "../providers/types";
 import { getProvider } from "../providers/registry";
 
-function dateKey(date: Date): string {
-  return date.toISOString().split("T")[0];
+export function dateKey(date: Date): string {
+  const p = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (t: Intl.DateTimeFormatPartTypes) => p.find((x) => x.type === t)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 export function getCachedCrossword(providerId: string, date: Date): CrosswordData | null {
@@ -41,4 +48,22 @@ export async function getOrFetchCrossword(providerId: string, date: Date): Promi
   const data = await provider.fetchForDate(date);
   saveCrossword(data, date);
   return data;
+}
+
+export function getAvailableDates(providerId: string, limit = 30): string[] {
+  const rows = crosswordsDb
+    .prepare(
+      "SELECT DISTINCT date_key FROM crosswords WHERE provider_id = ? ORDER BY date_key DESC LIMIT ?",
+    )
+    .all(providerId, limit) as { date_key: string }[];
+  return rows.map((r) => r.date_key);
+}
+
+export function deleteOldCrosswords(daysToKeep = 30): number {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysToKeep);
+  const result = crosswordsDb
+    .prepare("DELETE FROM crosswords WHERE date_key < ?")
+    .run(dateKey(cutoff));
+  return Number(result.changes);
 }

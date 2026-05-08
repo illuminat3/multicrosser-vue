@@ -17,6 +17,16 @@ export async function fetchTodaysCrossword(
   return res.json() as Promise<CrosswordData>;
 }
 
+export async function fetchCrosswordForDate(
+  providerId: string,
+  date: string,
+  signal?: AbortSignal,
+): Promise<CrosswordData> {
+  const res = await fetch(`${BASE}/crosswords/${providerId}/date/${date}`, { signal });
+  if (!res.ok) throw new Error(`Failed to fetch crossword for ${providerId} on ${date}`);
+  return res.json() as Promise<CrosswordData>;
+}
+
 export async function createGame(crosswordId: string): Promise<Game> {
   const res = await fetch(`${BASE}/games`, {
     method: "POST",
