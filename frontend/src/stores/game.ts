@@ -34,6 +34,7 @@ export const useGameStore = defineStore("game", () => {
     s.onMessage((msg) => {
       if (msg.type === "state") {
         cells.value = { ...msg.state.cells };
+        lockedCells.value = new Set(msg.state.lockedCells ?? []);
       } else if (msg.type === "cell_update") {
         const key = `${msg.x},${msg.y}`;
         if (msg.value === "") {
@@ -41,6 +42,8 @@ export const useGameStore = defineStore("game", () => {
         } else {
           cells.value[key] = msg.value;
         }
+      } else if (msg.type === "cells_locked") {
+        for (const key of msg.keys) lockedCells.value.add(key);
       }
     });
   }
@@ -72,6 +75,7 @@ export const useGameStore = defineStore("game", () => {
   function checkWord() {
     const entry = activeClue.value;
     if (!entry?.solution) return;
+    const newlyLocked: string[] = [];
     for (let i = 0; i < entry.length; i++) {
       const x = entry.direction === "across" ? entry.position.x + i : entry.position.x;
       const y = entry.direction === "down" ? entry.position.y + i : entry.position.y;
@@ -79,23 +83,28 @@ export const useGameStore = defineStore("game", () => {
       const typed = cells.value[key];
       if (typed && typed !== entry.solution[i].toUpperCase()) {
         setCell(x, y, "");
-      } else if (typed && typed === entry.solution[i].toUpperCase()) {
+      } else if (typed && typed === entry.solution[i].toUpperCase() && !lockedCells.value.has(key)) {
         lockedCells.value.add(key);
+        newlyLocked.push(key);
       }
     }
+    if (newlyLocked.length > 0) socket.value?.sendCellsLocked(newlyLocked);
   }
 
   function checkAll() {
     const solution = buildSolutionMap();
+    const newlyLocked: string[] = [];
     for (const [key, correct] of solution) {
       const typed = cells.value[key];
       if (typed && typed !== correct) {
         const [xStr, yStr] = key.split(",");
         setCell(Number(xStr), Number(yStr), "");
-      } else if (typed && typed === correct) {
+      } else if (typed && typed === correct && !lockedCells.value.has(key)) {
         lockedCells.value.add(key);
+        newlyLocked.push(key);
       }
     }
+    if (newlyLocked.length > 0) socket.value?.sendCellsLocked(newlyLocked);
   }
 
   function revealAll() {

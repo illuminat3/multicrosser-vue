@@ -1,6 +1,6 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { IncomingMessage } from "http";
-import { getGame, updateCell } from "../db/games";
+import { getGame, updateCell, lockCells } from "../db/games";
 
 interface Client {
   ws: WebSocket;
@@ -14,9 +14,14 @@ type CellUpdateMsg = {
   value: string;
 };
 
+type CellsLockedMsg = {
+  type: "cells_locked";
+  keys: string[];
+};
+
 type PingMsg = { type: "ping" };
 
-type ClientMessage = CellUpdateMsg | PingMsg;
+type ClientMessage = CellUpdateMsg | CellsLockedMsg | PingMsg;
 
 const rooms = new Map<string, Set<Client>>();
 
@@ -83,6 +88,15 @@ export function attachWebSocket(wss: WebSocketServer) {
           y: msg.y,
           value: msg.value,
         });
+      } else if (msg.type === "cells_locked") {
+        const updated = lockCells(guid, msg.keys);
+        if (!updated) {
+          ws.send(JSON.stringify({ type: "error", message: "Game expired" }));
+          ws.close();
+          return;
+        }
+
+        broadcast(guid, { type: "cells_locked", keys: msg.keys });
       }
     });
 
